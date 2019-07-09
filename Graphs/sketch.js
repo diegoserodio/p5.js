@@ -15,7 +15,7 @@ var data = {
 		},
 		{
 			"name": 'Rafael',
-			"property": [5, 20]
+			"property": [5, 20, 65, 1000]
 		},
 		{
 			"name": 'Marcela',
