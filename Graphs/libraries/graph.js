@@ -1,28 +1,34 @@
 class Graph{
-  constructor(source, targets){
+  constructor(){
+    this.source = [];
+    this.targets = [];
+    this.node = [];
+    this.link = [];
+    this.label = [];
+  }
+
+  generateGraphFromFile(source, targets){
     this.source = source;
     this.targets = targets;
-    this.node = [];
-    this.label = [];
-    this.nodes_qtn = 0;
+    var nodes_qtn = 0;
     for(var i = 0; i < this.source.length; i++){
-      if(!this.exists(this.source[i])){
-        this.label[this.source[i]]= this.nodes_qtn;
-        this.node[this.nodes_qtn] = new Node(this.source[i]);
-        this.nodes_qtn++;
+      if(!this.existsNode(this.source[i])){
+        this.label[this.source[i]]= nodes_qtn;
+        this.node[nodes_qtn] = new Node(this.source[i]);
+        nodes_qtn++;
       }
       for(var j = 0; j < this.targets[i].length; j++){
-        if(!this.exists(this.targets[i][j])){
-          this.label[this.targets[i][j]]= this.nodes_qtn;
-          this.node[this.nodes_qtn] = new Node(this.targets[i][j]);
-          this.nodes_qtn++;
+        if(!this.existsNode(this.targets[i][j])){
+          this.label[this.targets[i][j]]= nodes_qtn;
+          this.node[nodes_qtn] = new Node(this.targets[i][j]);
+          nodes_qtn++;
         }
       }
     }
     this.createLinks();
   }
 
-  exists(label){
+  existsNode(label){
     for(var i = 0; i < this.node.length; i++){
       if(label == this.node[i].label){
         return true;
@@ -35,35 +41,47 @@ class Graph{
     for(var i = 0; i < this.source.length; i++){
       for(var j = 0; j < this.targets[i].length; j++){
         this.node[this.label[this.source[i]]].connect(this.node[this.label[this.targets[i][j]]]);
-        //For undirected graph uncomment line bellow
+        //------FOR NON-DIRECTED GRAPH UNCOMMENT LINE BELOW------
         //this.node[this.label[this.targets[i][j]]].connect(this.node[this.label[this.source[i]]]);
       }
     }
   }
 
   show(){
-    fill(255, 255, 255);
-    stroke(255, 255, 255);
+    var links_qtn = 0;
     for(var i = 0; i < this.node.length; i++){
-      ellipse(this.node[i].position.x, this.node[i].position.y, (this.node[i].links.length+1)*5, (this.node[i].links.length+1)*5);
+      fill(255, 255, 255);
+      ellipse(this.node[i].position.x, this.node[i].position.y, this.node[i].size, this.node[i].size);
       for(var j = 0; j < this.node[i].links.length; j++){
+        this.link[links_qtn] = new Link(this.node[i], this.node[i].links[j]);
+        stroke(255, 255, 255);
+        strokeWeight(this.link[links_qtn].weight);
         line(this.node[i].position.x, this.node[i].position.y, this.node[i].links[j].position.x, this.node[i].links[j].position.y);
+        this.drawArrow(this.node[i], this.node[i].links[j]);
+        links_qtn++;
       }
     }
   }
 
-  drawArrow(a, b, size){
+  drawArrow(a, b){
     var x_orientation = 0, y_orientation = 0;
     if(b.position.x >= a.position.x){
-      x_orientation = 1;
-    }else{
       x_orientation = -1;
+    }else{
+      x_orientation = 1;
     }
     if(b.position.y >= a.position.y){
-      y_orientation = 1;
-    }else{
       y_orientation = -1;
+    }else{
+      y_orientation = 1;
     }
+    var theta = Math.atan(Math.abs((b.position.y-a.position.y)/(b.position.x-a.position.x)));
+    var radius = (b.links.length+1)*6;
+    var x = b.position.x + radius*Math.cos(theta)*x_orientation;
+    var y = b.position.y + radius*Math.sin(theta)*y_orientation;
+    fill(255, 0, 0);
+    noStroke();
+    ellipse(x, y, 6, 6);
   }
 }
 
@@ -72,7 +90,7 @@ class Node{
     this.label = label;
     this.weight = weight;
     this.links = [];
-    this.size = 20;
+    this.size = 0;
     this.position = {
       x: floor(random(this.size, windowWidth-this.size)),
       y: floor(random(this.size, windowHeight-this.size))
@@ -81,5 +99,17 @@ class Node{
 
   connect(node){
     this.links.push(node);
+    this.size = (this.links.length+1)*10;
+    node.size = (node.links.length+1)*10;
+    this.position.x = floor(random(this.size, windowWidth-this.size));
+    this.position.y = floor(random(this.size, windowHeight-this.size));
+  }
+}
+
+class Link{
+  constructor(sourceNode, targetNode, weight = 1){
+    this.weight = weight;
+    this.sourceNode = sourceNode;
+    this.targetNode = targetNode;
   }
 }

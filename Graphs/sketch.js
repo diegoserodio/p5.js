@@ -20,7 +20,8 @@ let graph;
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
-	graph = new Graph(source, targets);
+	graph = new Graph();
+	graph.generateGraphFromFile(source, targets);
 }
 
 function draw() {
