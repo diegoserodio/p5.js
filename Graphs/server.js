@@ -1,6 +1,5 @@
 var http = require('http');
 var fs = require('fs');
-var sketch = require('./sketch.js');
 
 http.createServer(function(request, response) {
 console.log("Received Request: " + request.url.slice(1));
@@ -43,9 +42,20 @@ console.log("Received Request: " + request.url.slice(1));
 
         });
     }
+    else if(request.url.indexOf('.csv') != -1) {
+        fs.readFile(request.url.slice(1), function (error, data) {
+            if (error) {
+                response.writeHead(404, {"COntent-type":"text/plain"});
+                response.end("No Css Page Found.");
+            } else{
+                response.write(data);
+                response.end();
+            }
+
+        });
+    }
     else {
       fs.readFile('index.html', function(err, data) {
-      sketch.data.csv_file="CSV content";
       response.writeHead(200, {'Content-Type': 'text/html'});
       response.write(data);
       response.end();
